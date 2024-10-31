@@ -1,11 +1,9 @@
 "use client";
-import { useState } from "react";
-import LoginForm from "./ui/Login";
+import Cookies from "js-cookie";
+import Login from "./components/Login";
+import { Navbar } from "./components/Navbar";
 
-// TODO: - Add account login --> create login page and change layout based on logging status
-//       - Read on conditional rendering --> login page if logged out (state)
-//       - Work on placement of Login Form
-//       - Fetch data user (read data fetch docs Next.js)
+// TODO: 
 //       - create note interface (after that --> CRUD operations)
 //       - test front end (see nextjs doc)
 
@@ -15,9 +13,11 @@ import LoginForm from "./ui/Login";
 
 
 export default function Home() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   return (
-    <LoginForm></LoginForm>
+    <>
+      <Navbar children={null}/>
+      {!Cookies.get("accessToken") && <Login/>}
+    </>
   );
 }
