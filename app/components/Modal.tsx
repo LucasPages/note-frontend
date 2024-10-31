@@ -8,7 +8,7 @@ type FormData = {
     note: string;
 }
 
-function Modal({ closeModal, user }) {
+function Modal({ closeModal, user, revalidate }) {
     const {
         register,
         handleSubmit,
@@ -25,7 +25,7 @@ function Modal({ closeModal, user }) {
     const onSubmit = (data: FormData) => {
         api.post({owner: user.username, title: data.title, note: data.note}, "/notes/")
         .json(json => {
-            console.log(json);
+            revalidate();
         }).catch(err => {
             setError("root", { type: "manual", message: err.json.detail });
         });
@@ -41,9 +41,9 @@ function Modal({ closeModal, user }) {
             </div>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className='flex flex-col gap-2'>
-                    <input className='rounded-sm p-1 text-black' type='text' placeholder='Title' {...register('title')}/>
-                    {errors.text && <span className='text-red-600'>Error with title</span>}
-                    <input className='rounded-sm p-1 text-black' type='text' placeholder='Note' {...register('note')}/>
+                    <input autoComplete="off" className='rounded-sm p-1 text-black' type='text' placeholder='Title' {...register('title')}/>
+                    {errors.title && <span className='text-red-600'>Error with title</span>}
+                    <input autoComplete="off" className='rounded-sm p-1 text-black' type='text' placeholder='Note' {...register('note')}/>
                     {errors.note && <span className='text-red-600'>Error with note</span>}
                 </div>
                 <input type="submit" hidden/>
