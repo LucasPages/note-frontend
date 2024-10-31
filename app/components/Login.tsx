@@ -35,7 +35,7 @@ export default function Login() {
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="mx-auto my-4 w-fit ">
+        <form onSubmit={handleSubmit(onSubmit)} className="mx-auto my-4 w-fit">
             <div className="flex flex-col gap-2">
                 <div className="flex flex-col gap-1">
                     <label htmlFor="username">Username</label>
