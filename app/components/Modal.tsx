@@ -34,19 +34,18 @@ function Modal({ closeModal, user, revalidate }) {
 
   return (
     <div className='absolute w-screen h-screen bg-neutral-800'>
-        <div className='flex flex-col gap-3 w-1/3 my-5 mx-auto bg-neutral-700 p-3 rounded-md'>
-            <div className='flex flex-row justify-between'>
-                <h2>Create Note</h2>
+        <div className='flex flex-col gap-3 w-2/3 my-5 mx-auto bg-neutral-700 p-3 rounded-md'>
+            <div className='flex flex-row justify-end'>
                 <button onClick={closeModal}><i className="fa-solid fa-xmark"></i></button>
             </div>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className='flex flex-col gap-2'>
                     <input autoComplete="off" className='rounded-sm p-1 text-black' type='text' placeholder='Title' {...register('title')}/>
                     {errors.title && <span className='text-red-600'>Error with title</span>}
-                    <input autoComplete="off" className='rounded-sm p-1 text-black' type='text' placeholder='Note' {...register('note')}/>
+                    <textarea autoComplete="off" className='rounded-sm p-1 text-black' placeholder='Note' {...register('note')}/>
                     {errors.note && <span className='text-red-600'>Error with note</span>}
+                    <button className="self-end p-2 bg-neutral-600 active:bg-neutral-500 rounded-md" type="submit">Create</button>
                 </div>
-                <input type="submit" hidden/>
             </form>
         </div>
     </div>

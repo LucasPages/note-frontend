@@ -4,7 +4,6 @@ import Login from "./components/Login";
 import { Navbar } from "./components/Navbar";
 
 // TODO: 
-//       - create note interface (after that --> CRUD operations)
 //       - test front end (see nextjs doc)
 
 // TODO: Low priority
@@ -17,7 +16,11 @@ export default function Home() {
   return (
     <>
       <Navbar children={null}/>
-      {!Cookies.get("accessToken") && <Login/>}
+      <div className="flex flex-row justify-between mt-10 ">
+        <div className="mx-auto border-2 border-neutral-500 rounded-md p-4 w-fit ">
+          {!Cookies.get("accessToken") && <Login/>}
+        </div>
+      </div>
     </>
   );
 }

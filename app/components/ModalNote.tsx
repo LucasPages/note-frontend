@@ -4,6 +4,12 @@ import wretch from "wretch";
 import { AuthActions } from '../auth/utils';
 import { url } from 'inspector';
 
+// TODO : - add animation when opening Modal
+//        - remove Create Note button when editing note
+//        - making it look less like a form :
+//              --> 1) change background color input fields
+//              --> 2) submit when user exits modal window, remove edit button
+
 
 type FormData = {
     title: string;
@@ -47,21 +53,22 @@ function Modal({ closeModal, note, setNote, revalidate }) {
 
   return (
     <div className='absolute w-screen h-screen bg-neutral-800'>
-        <div className='flex flex-col gap-3 w-1/3 my-5 mx-auto bg-neutral-700 p-3 rounded-md'>
-            <div className='flex flex-row justify-between'>
-                <h2>Edit note</h2>
+        <div className='flex flex-col gap-3 w-2/3 my-5 mx-auto bg-neutral-700 p-3 rounded-md'>
+            <div className='flex flex-row justify-end'>
                 <button onClick={closeModal} className=''><i className="fa-solid fa-xmark"></i></button>
             </div>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className='flex flex-col gap-2'>
                     <input className='rounded-sm p-1 text-black' type='text' placeholder='Title' {...register('title', { maxLength: 20 })}/>
                     {errors.title && <span className='text-red-600'>Title must be less than 20 characters</span>}
-                    <input className='rounded-sm p-1 text-black' type='text' placeholder='Note' {...register('note')}/>
+                    <textarea className='rounded-sm p-1 text-black' placeholder='Note' {...register('note')}/>
                     {errors.note && <span className='text-red-600'>Error with note</span>}
                 </div>
-                <input type="submit" hidden/>
+                <div className='mt-3 flex justify-between'>
+                    <button type='submit' className='rounded-md bg-blue-500 active:bg-blue-400 p-2'>Edit</button>
+                    <button onClick={deleteNote} className='text-white rounded-md bg-red-500 active:bg-red-400 w-fit p-2'>DELETE</button>
+                </div>
             </form>
-            <button onClick={deleteNote} className='self-end text-white rounded-md bg-red-500 active:bg-red-400 w-fit p-2'>DELETE</button>
         </div>
     </div>
   );

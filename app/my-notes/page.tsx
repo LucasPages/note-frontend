@@ -29,7 +29,7 @@ interface User {
 
 export default function Home() {
     const [openModal, setOpenModal] = useState(false);
-    const [notes, setNotes] = useState<Note[]>([]);
+    const [editMode, setEditMode] = useState(false);
     const { data: user, isLoading: userLoading, error: userError}: { data: User, isLoading: boolean, error: any} = useSWR("/auth/users/me", fetcher);
     const { data: noteData, isLoading: noteLoading, error: noteError, mutate: revalidateNotes } : { data: Array<Note>, isLoading: boolean, error: any, mutate: any} = useSWR("/my-notes", fetcher);
     
@@ -37,8 +37,7 @@ export default function Home() {
     
     const { logout, removeTokens } = AuthActions();  
 
-    // useEffect(() => setNotes(noteData), [noteData]);
-
+    
     if (userLoading) {
         return <h1>Connecting...</h1>
     }
@@ -68,7 +67,7 @@ export default function Home() {
                     }
                 </Navbar>
 
-                <div className="my-2 mx-auto w-fit">
+                <div className=" bg-neutral-700 active:bg-neutral-600 p-2 rounded-md my-2 mx-auto w-fit">
                         <button onClick={() => setOpenModal(true)}>
                             <i className="fa-solid fa-plus" /> Create Note
                         </button>

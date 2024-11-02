@@ -40,6 +40,7 @@ export default function Login() {
                 <div className="flex flex-col gap-1">
                     <label htmlFor="username">Username</label>
                     <input  
+                        autoComplete="off"
                         {...register("username", { required: true })}
                         className="rounded-sm text-black p-1"
                         type="text" 
