@@ -1,6 +1,6 @@
 "use client";
 
-import useSWR from "swr";
+import useSWR, { SWRConfig, useSWRConfig } from "swr";
 import { fetcher } from "../fetcher";
 import { AuthActions } from "../auth/utils";
 import { useRouter } from "next/navigation";
@@ -24,22 +24,32 @@ export default function Home() {
     const router = useRouter();
     
     const { logout, removeTokens } = AuthActions();  
+    const { mutate } = useSWRConfig();
 
     
     if (userLoading) {
-        return <h1>Connecting...</h1>
+        return <h1 className="italic">Connecting...</h1>
+    }
+
+    const clearNotesCache = () => {
+        mutate(
+            "/my-notes",
+            undefined,
+            false
+        );
     }
 
     const handleLogout = () => {
         logout()
-            .res(() => {
-                removeTokens();
-                router.push("/");
+        .res(() => {
+            removeTokens();
+            router.push("/");
             })
             .catch(() => {
                 removeTokens();
                 router.push("/");
             });
+        clearNotesCache();
     };
     
     return (
