@@ -1,4 +1,3 @@
-"use client";
 import Cookies from "js-cookie";
 import Login from "./components/Login";
 import { Navbar } from "./components/Navbar";
@@ -13,12 +12,14 @@ import { Navbar } from "./components/Navbar";
 
 export default function Home() {
 
+  const cookie = Cookies.get("accessToken");
+
   return (
     <>
       <Navbar children={null}/>
       <div className="flex flex-row justify-between mt-10 ">
         <div className="mx-auto border-2 border-neutral-500 rounded-md p-4 w-fit ">
-          {!Cookies.get("accessToken") && <Login/>}
+          {!cookie && <Login/>}
         </div>
       </div>
     </>

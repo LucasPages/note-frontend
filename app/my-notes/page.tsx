@@ -7,19 +7,9 @@ import { useRouter } from "next/navigation";
 import Note from "../components/Note";
 import { Navbar } from "../components/Navbar";
 import Script from "next/script";
-import Modal from "../components/Modal";
-import { useEffect, useState } from "react";
-import wretch from "wretch";
+import { NoteInterface } from "./noteUtils";
+import { createEmptyNote } from "./noteUtils";
 
-
-interface Note {
-    url: string;
-    owner: string;
-    title: string;
-    note: string;
-    created_at: Date;
-    last_edited: Date;
-}
 
 interface User {
     username: string;
@@ -28,10 +18,8 @@ interface User {
 }
 
 export default function Home() {
-    const [openModal, setOpenModal] = useState(false);
-    const [editMode, setEditMode] = useState(false);
     const { data: user, isLoading: userLoading, error: userError}: { data: User, isLoading: boolean, error: any} = useSWR("/auth/users/me", fetcher);
-    const { data: noteData, isLoading: noteLoading, error: noteError, mutate: revalidateNotes } : { data: Array<Note>, isLoading: boolean, error: any, mutate: any} = useSWR("/my-notes", fetcher);
+    const { data: noteData, isLoading: noteLoading, error: noteError, mutate: revalidateNotes } : { data: Array<NoteInterface>, isLoading: boolean, error: any, mutate: any} = useSWR("/my-notes", fetcher);
     
     const router = useRouter();
     
@@ -46,7 +34,6 @@ export default function Home() {
         logout()
             .res(() => {
                 removeTokens();
-
                 router.push("/");
             })
             .catch(() => {
@@ -60,23 +47,24 @@ export default function Home() {
             <div>
                 <Navbar>
                     {user && 
-                    <span className="flex flex-row items-center">
+                    <div className="flex flex-row items-center">
                         <p className="text-2xl">{user.username} - </p>
                         <button className="text-2xl h-fit mr-3 p-3" onClick={handleLogout}>Log Out</button>
-                    </span>
+                    </div>
                     }
                 </Navbar>
 
                 <div className=" bg-neutral-700 active:bg-neutral-600 p-2 rounded-md my-2 mx-auto w-fit">
-                        <button onClick={() => setOpenModal(true)}>
+                        <button onClick={() => {
+                            createEmptyNote(revalidateNotes);
+                        }}>
                             <i className="fa-solid fa-plus" /> Create Note
                         </button>
                 </div>
-                {openModal && <Modal closeModal={() => setOpenModal(false)} user={user} revalidate={revalidateNotes}/>}
 
                 {noteLoading && <h2>Notes Loading...</h2>}
-                <div className="m-3 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                    {noteData && noteData.map(note => {
+                <div className="m-3 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                    {noteData && noteData.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()).map(note => {
                         return <Note key={note.url} note={note} revalidate={revalidateNotes}/>;
                     })}
                 </div>

@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { useForm } from "react-hook-form";
 import { AuthActions } from "../auth/utils";
@@ -17,7 +19,6 @@ export default function Login() {
         formState: { errors },
         setError,
     } = useForm<FormData>();
-
     const router = useRouter();
 
     const { login, storeToken } = AuthActions();
@@ -41,24 +42,20 @@ export default function Login() {
                     <label htmlFor="username">Username</label>
                     <input  
                         autoComplete="off"
-                        {...register("username", { required: true })}
+                        {...register("username", { required: { value: true, message: "Username required"} })}
                         className="rounded-sm text-black p-1"
                         type="text" 
                     />
-                    {errors.username && (
-                        <span className="text-xs text-red-600">Username is required</span>
-                    )}
+                    {errors.username?.message}
                 </div>
                 <div className="flex flex-col gap-1">
-                    <label id="password">Password</label>
+                    <label htmlFor="password">Password</label>
                     <input 
-                        {...register("password", { required: true })}
+                        {...register("password", { required: { value: true, message: "Password required"} })}
                         className="rounded-sm text-black p-1"
                         type="password" 
                     />
-                    {errors.password && (
-                        <span className="text-xs text-red-600">Password is required</span>
-                    )}
+                    {errors.password?.message }
                 </div>
                 
                 <button className="bg-neutral-700 active:bg-neutral-600 w-4/6 mx-auto my-4 rounded-sm p-2 bg" type="submit">Log In</button>
