@@ -1,12 +1,9 @@
 "use client";
 
-import { NoteInterface } from "../my-notes/noteUtils";
+import { NoteInterface } from "../lib/notes";
 import { useState } from "react";
 import { useForm } from 'react-hook-form';
-import wretch from "wretch";
-import { AuthActions } from "../auth/utils";
-
-
+import Cookies from "js-cookie";
 type FormData = {
     title: string;
     note: string;
@@ -14,8 +11,6 @@ type FormData = {
 
 export default function Note({ note, revalidate } : { note: NoteInterface, revalidate: any }) {
     const [lastSubmit, setLastSubmit] = useState({ title: note.title, note: note.note });
-
-    const { getToken } = AuthActions();
 
     const {
         register,
@@ -27,38 +22,58 @@ export default function Note({ note, revalidate } : { note: NoteInterface, reval
             title: note.title,
             note: note.note
         },
-        mode: 'onBlur',
+        mode: 'onChange',
     });
-
-    const api_detail = wretch(note.url)
-        .accept("application/json")
-        .auth(`Bearer ${getToken("access")}`);
 
 
     const onSubmit = (data: FormData) => {
         if (lastSubmit.title !== data.title || lastSubmit.note !== data.note) {
-            api_detail.patch({title: data.title, note: data.note}, "")
-            .json()
-            .catch(err => setError("root", { type: "manual", message: err.json.detail }));
+            fetch(`${note.url}`, {
+                method: "PATCH",
+                credentials: "include",
+                body: JSON.stringify({
+                    title: data.title, 
+                    note: data.note
+                }),
+                mode: "cors",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "X-CSRFToken": Cookies.get("csrftoken") || "",
+                }
+            })
+            .then(res => res.json())
+            .catch(err => setError("root", { type: "manual", message: err.message }));
             setLastSubmit({ title: data.title, note: data.note })
         }
-    };
+     };
 
-    const deleteNote = () => {
-        api_detail.delete("").res(json => {
-            revalidate();
+    const deleteNote = async () => {
+        const delete_response = await fetch(`${note.url}`, {
+            method: "DELETE",
+            credentials: "include",
+            mode: "cors",
+            headers: {
+                "X-CSRFToken": Cookies.get("csrftoken") || "",
+            }
         });
+
+        if (delete_response.ok) {
+            revalidate();
+        } else {
+            console.log(delete_response);
+        }
     };
 
     return (
         <>
-            <div className="bg-neutral-700 px-3 py-2 rounded-md flex flex-row justify-between h-44 overflow-scroll">
-                <form onBlur={handleSubmit(onSubmit)}>
+            <div className="shadow-md px-3 py-2 rounded-md flex flex-row justify-between h-44 overflow-scroll">
+                <form onBlur={handleSubmit(onSubmit)} className="w-full">
                     <div className='flex flex-col gap-2'>
-                        <input maxLength={20} className='text-gray-300 placeholder:italic p-1 bg-neutral-700' type='text' placeholder='Title' 
+                        <input maxLength={20} className='text-black rounded-md p-1 w-[95%]' type='text' placeholder='Title' 
                         {...register('title', { maxLength: {value: 20, message: "Title must be less than 20 characters long."} })}/>
                         {errors.title?.message}
-                        <textarea className='h-28 resize-none text-gray-300 placeholder:italic p-1 bg-neutral-700' placeholder='Note' 
+                        <textarea className='h-28 resize-none text-black placeholder:italic p-1' placeholder='Note' 
                         {...register('note')}/>
                         {errors.note?.message}
                     </div>
