@@ -31,7 +31,7 @@ export default function Login() {
     };
 
     return (
-        <div className="mx-auto my-[20%] border-2 shadow-md rounded-md p-4 w-fit ">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-2 shadow-md rounded-md p-4 w-fit ">
             <form onSubmit={handleSubmit(onSubmit)} className="mx-auto my-4 w-fit">
                 <div className="flex flex-col gap-2">
                     <div className="flex flex-col gap-1">
