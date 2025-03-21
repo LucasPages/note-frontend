@@ -82,11 +82,9 @@ export default function Home() {
     return (
         <>
             <div>
-                <div className="text-gray-800 font-bold shadow-lg active:shadow-md p-2 rounded-md my-2 mx-auto w-fit absolute top-0 left-4">
-                    <button onClick={handleLogout}>
+                <button onClick={handleLogout} className="text-sm rounded-lg absolute top-0 left-1 text-gray-800 font-bold p-2 my-2 mx-auto w-fit">
                         <i className="fa-solid fa-right-from-bracket" /> Logout
-                    </button>
-                </div>
+                </button>
                 <div className="text-gray-800 font-bold shadow-lg active:shadow-md p-2 rounded-md my-2 mx-auto w-fit">
                         <button onClick={() => {
                             createEmptyNote(revalidateNotes);
@@ -95,8 +93,8 @@ export default function Home() {
                         </button>
                 </div>
 
-                {noteLoading && <h2>Notes Loading...</h2>}
-                <div className="m-3 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                {noteLoading && <h2 className="shadow-md p-2 rounded-md my-2 mx-auto w-fit">Notes Loading...</h2>}
+                <div className="m-5 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
                     {noteData && noteData.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()).map(note => {
                         return <Note key={note.url} note={note} revalidate={revalidateNotes}/>;
                     })}
