@@ -67,13 +67,13 @@ export default function Note({ note, revalidate } : { note: NoteInterface, reval
 
     return (
         <>
-            <div className="shadow-md px-3 py-2 rounded-md flex flex-row justify-between h-44 overflow-scroll">
+            <div className="shadow-md px-3 py-2 rounded-md flex flex-row justify-between h-44">
                 <form onBlur={handleSubmit(onSubmit)} className="w-full">
                     <div className='flex flex-col gap-2'>
                         <input maxLength={20} className='text-black rounded-md p-1 w-[95%]' type='text' placeholder='Title' 
                         {...register('title', { maxLength: {value: 20, message: "Title must be less than 20 characters long."} })}/>
                         {errors.title?.message}
-                        <textarea className='h-28 resize-none text-black placeholder:italic p-1' placeholder='Note' 
+                        <textarea className='h-28 resize-none text-black placeholder:italic p-1' placeholder='Write your note here...' 
                         {...register('note')}/>
                         {errors.note?.message}
                     </div>

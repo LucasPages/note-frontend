@@ -3,7 +3,7 @@
 import { cookies } from "next/headers";
 
 export interface NoteInterface {
-    id: string;
+    url: string;
     owner: string;
     title: string;
     note: string;
