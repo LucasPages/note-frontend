@@ -110,6 +110,7 @@ export default function Note({ note, revalidate } : { note: NoteInterface, reval
 
         if (tag_response.ok) {
             revalidate();
+            fetchTags();
         } else {
             console.log(tag_response);
         }
@@ -142,7 +143,7 @@ export default function Note({ note, revalidate } : { note: NoteInterface, reval
                     }} className="text-xs text-gray-500 px-2 py-[1px]"><i className="fa-solid fa-plus"></i></button>
                 </div>
             </div>
-            {tagModal && <TagModal existingTags={allTags} onSubmit={handleTagSubmit} onClose={() => setTagModal(false)}/>}
+            {tagModal && <TagModal existingTags={allTags} onSubmit={handleTagSubmit} onClose={() => setTagModal(false)} />}
         </div>
     );
 }
