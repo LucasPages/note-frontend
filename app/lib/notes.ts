@@ -7,13 +7,14 @@ export interface NoteInterface {
     owner: string;
     title: string;
     note: string;
+    tag_list: string[];
     created_at: Date;
     last_edited: Date;
 }
 
 
 export async function createEmptyNote(revalidate: Function) {
-    const data = {title: "", note: ""};
+    const data = {title: "", note: "", tag_list: []};
 
     const cookieStore = await cookies();
     console.log(cookieStore.getAll());
@@ -34,5 +35,22 @@ export async function createEmptyNote(revalidate: Function) {
         revalidate();
     } else {
         console.log(note_response);
+    }
+}
+
+export async function getTags() {
+    const cookieStore = await cookies();
+    const tags_response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tags/`, {
+        credentials: "include",
+        mode: "cors",
+        headers: {
+            "X-CSRFToken": cookieStore.get("csrftoken")?.value || "",
+        }
+    });
+
+    if (tags_response.ok) {
+        return tags_response.json();
+    } else {
+        console.log(tags_response);
     }
 }
