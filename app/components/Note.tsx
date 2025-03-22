@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import Cookies from "js-cookie";
 import TagModal from "./TagModal";
 import { TagFormData } from "./TagModal";
+import Tag from "./Tag";
 
 type FormData = {
     title: string;
@@ -131,8 +132,7 @@ export default function Note({ note, revalidate } : { note: NoteInterface, reval
             <div className="flex flex-row justify-between">
                 <div className="flex flex-row gap-2 overflow-x-scroll scrollbar-hide">
                     {note.tag_list && note.tag_list.map((tag) => {
-                            console.log(tag);
-                            return <span key={tag} className="text-xs text-gray-500 rounded-full border-[1px] border-gray-500 px-2 py-[1px]">{tag}</span>
+                            return <Tag key={tag} tag={tag} note={note} revalidate={revalidate}/>
                         }
                     )}
                 </div>
