@@ -14,9 +14,9 @@ export interface NoteInterface {
 
 
 export async function createEmptyNote(revalidate: Function) {
-    const data = {title: "", note: [""], tag_list: []};
+    const data = {title: "", note: [""], tags: []};
     const cookieStore = await cookies();
-    
+
     const note_response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/`, {
         method: "POST",
         body: JSON.stringify(data),
@@ -28,7 +28,7 @@ export async function createEmptyNote(revalidate: Function) {
             "X-CSRFToken": cookieStore.get("csrftoken")?.value || "",
         }
     });
-    console.log(note_response);
+
     if (note_response.ok) {
         revalidate();
     } else {

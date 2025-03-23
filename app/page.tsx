@@ -6,7 +6,6 @@ import Note from "./components/Note";
 import Script from "next/script";
 import { NoteInterface } from "./lib/notes";
 import Cookies from "js-cookie";
-import { logout } from "./lib/auth";
 
 
 export default function Home() {
@@ -58,7 +57,8 @@ export default function Home() {
     };
 
     const createEmptyNote = async (revalidate: Function) => {
-      const data = {title: "", note: ""};
+      const data = {title: "", note: [], tags: []};
+      console.log(data);
   
       const note_response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/`, {
           method: "POST",
@@ -75,7 +75,8 @@ export default function Home() {
       if (note_response.ok) {
           revalidate();
       } else {
-          console.log(note_response);
+        const errorData = await note_response.json();
+        console.log('Error response:', errorData);
       }
     }
 
@@ -94,7 +95,7 @@ export default function Home() {
                 </div>
 
                 {noteLoading && <h2 className="shadow-md p-2 rounded-md my-2 mx-auto w-fit">Notes Loading...</h2>}
-                <div className="m-5 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                <div className="m-5 flex flex-wrap gap-3">
                     {noteData && noteData.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()).map(note => {
                         return <Note key={note.url} note={note} revalidate={revalidateNotes}/>;
                     })}

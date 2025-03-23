@@ -1,13 +1,12 @@
 "use client";
 
 import { NoteInterface } from "../lib/notes";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFieldArray, useForm } from 'react-hook-form';
 import Cookies from "js-cookie";
 import TagModal from "./TagModal";
 import { TagFormData } from "./TagModal";
 import Tag from "./Tag";
-import { watch } from "fs";
 
 type FormData = {
     title: string;
@@ -15,6 +14,7 @@ type FormData = {
 }
 
 export default function Note({ note, revalidate } : { note: NoteInterface, revalidate: any }) {
+    const noteRef = useRef<HTMLDivElement>(null);
     const [allTags, setAllTags] = useState<string[]>([]);
     const [lastSubmit, setLastSubmit] = useState({ 
         title: note.title, 
@@ -27,7 +27,7 @@ export default function Note({ note, revalidate } : { note: NoteInterface, reval
         tags: note.tag_list 
     });
     const [tagModal, setTagModal] = useState(false);
-    
+    console.log(note)
     const {
         register,
         handleSubmit,
@@ -38,7 +38,7 @@ export default function Note({ note, revalidate } : { note: NoteInterface, reval
     } = useForm({
         defaultValues: {
             title: note.title,
-            note: note.note || [""]
+            note: note.note.length > 0 ? note.note : [""]
         },
         mode: "onBlur",
     });
@@ -55,6 +55,12 @@ export default function Note({ note, revalidate } : { note: NoteInterface, reval
         control,
         name: "note"
       });
+    
+    useEffect(() => {
+        if (fields.length === 0) {
+            append('');
+        }
+    }, [fields.length, append]);
     
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNoteState({
@@ -157,16 +163,16 @@ export default function Note({ note, revalidate } : { note: NoteInterface, reval
             e.preventDefault();
             append('');
             setTimeout(() => {
-                const inputs = document.querySelectorAll('input[placeholder="item"]');
-                inputs[index + 1]?.focus();
+                const inputs = noteRef.current?.querySelectorAll('input[placeholder="item"]');
+                inputs?.[index + 1]?.focus();
             }, 50);
         } else if (e.key === 'Backspace') {
             if (noteState.note[index] === '' && noteState.note.length > 1) {
                 e.preventDefault();
                 remove(index);
                 setTimeout(() => {
-                    const inputs = document.querySelectorAll('input[placeholder="item"]');
-                    inputs[index - 1]?.focus();
+                    const inputs = noteRef.current?.querySelectorAll('input[placeholder="item"]');
+                    inputs?.[index - 1]?.focus();
                 }, 0);
             }
         }
@@ -182,7 +188,7 @@ export default function Note({ note, revalidate } : { note: NoteInterface, reval
     };
 
     return (
-        <div className="shadow-md px-3 py-2 rounded-md min-h-44 h-fit relative flex flex-col justify-between">
+        <div ref={noteRef} className="shadow-md px-3 py-2 rounded-md min-h-44 h-fit relative flex flex-col justify-between">
             <div className="flex flex-row justify-between">
                 <form onBlur={handleSubmit(onSubmit)} className="w-full">
                     <div className='flex flex-col gap-2'>
