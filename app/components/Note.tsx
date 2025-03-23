@@ -2,44 +2,75 @@
 
 import { NoteInterface } from "../lib/notes";
 import { useEffect, useState } from "react";
-import { useForm } from 'react-hook-form';
+import { useFieldArray, useForm } from 'react-hook-form';
 import Cookies from "js-cookie";
 import TagModal from "./TagModal";
 import { TagFormData } from "./TagModal";
 import Tag from "./Tag";
+import { watch } from "fs";
 
 type FormData = {
     title: string;
-    note: string;
+    note: string[];
 }
 
 export default function Note({ note, revalidate } : { note: NoteInterface, revalidate: any }) {
     const [allTags, setAllTags] = useState<string[]>([]);
-    const [lastSubmit, setLastSubmit] = useState({ title: note.title, note: note.note, tags: note.tag_list });
+    const [lastSubmit, setLastSubmit] = useState({ 
+        title: note.title, 
+        note: note.note, 
+        tags: note.tag_list 
+    });
+    const [noteState, setNoteState] = useState({ 
+        title: note.title, 
+        note: note.note, 
+        tags: note.tag_list 
+    });
     const [tagModal, setTagModal] = useState(false);
-
+    
     const {
         register,
         handleSubmit,
         setError,
+        watch,
+        control,
         formState: { errors }
     } = useForm({
         defaultValues: {
             title: note.title,
-            note: note.note
+            note: note.note || [""]
         },
-        mode: 'onChange',
+        mode: "onBlur",
     });
 
+    const noteFields = watch('note');
+    useEffect(() => {
+        setNoteState({
+            ...noteState,
+            note: noteFields || [''],
+        });
+    }, [noteFields]);
+
+    const { fields, append, prepend, remove, swap, move, insert } = useFieldArray({
+        control,
+        name: "note"
+      });
+    
+    const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNoteState({
+            ...noteState,
+            title: e.target.value
+        });
+    };
 
     const onSubmit = (data: FormData) => {
-        if (lastSubmit.title !== data.title || lastSubmit.note !== data.note) {
+        if (lastSubmit.title !== data.title || JSON.stringify(lastSubmit.note) !== JSON.stringify(data.note)) {
             fetch(`${note.url}`, {
                 method: "PATCH",
                 credentials: "include",
                 body: JSON.stringify({
                     title: data.title, 
-                    note: data.note
+                    note: data.note.filter(field => field.trim() !== '')
                 }),
                 mode: "cors",
                 headers: {
@@ -50,7 +81,11 @@ export default function Note({ note, revalidate } : { note: NoteInterface, reval
             })
             .then(res => res.json())
             .catch(err => setError("root", { type: "manual", message: err.message }));
-            setLastSubmit({ title: data.title, note: data.note, tags: note.tag_list })
+            setLastSubmit({ 
+                title: data.title, 
+                note: data.note, 
+                tags: note.tag_list 
+            })
         }
      };
 
@@ -115,17 +150,59 @@ export default function Note({ note, revalidate } : { note: NoteInterface, reval
             console.log(tag_response);
         }
     };
+
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            append('');
+            setTimeout(() => {
+                const inputs = document.querySelectorAll('input[placeholder="item"]');
+                inputs[index + 1]?.focus();
+            }, 50);
+        } else if (e.key === 'Backspace') {
+            if (noteState.note[index] === '' && noteState.note.length > 1) {
+                e.preventDefault();
+                remove(index);
+                setTimeout(() => {
+                    const inputs = document.querySelectorAll('input[placeholder="item"]');
+                    inputs[index - 1]?.focus();
+                }, 0);
+            }
+        }
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+        const newNote = [...noteState.note];
+        newNote[index] = e.target.value;
+        setNoteState({
+            ...noteState,
+            note: newNote
+        });
+    };
+
     return (
-        <div className="shadow-md px-3 py-2 rounded-md  min-h-44 h-fit relative">
+        <div className="shadow-md px-3 py-2 rounded-md min-h-44 h-fit relative flex flex-col justify-between">
             <div className="flex flex-row justify-between">
                 <form onBlur={handleSubmit(onSubmit)} className="w-full">
                     <div className='flex flex-col gap-2'>
-                        <input maxLength={20} className='text-black rounded-md p-1 w-[95%]' type='text' placeholder='Title' 
-                        {...register('title', { maxLength: {value: 20, message: "Title must be less than 20 characters long."} })}/>
-                        {errors.title?.message}
-                        <textarea className='h-28 resize-none text-black placeholder:italic p-1' placeholder='Write your note here...' 
-                        {...register('note')}/>
-                        {errors.note?.message}
+                        <input maxLength={20} className='text-black rounded-md p-1 w-[95%] focus:outline-none font-bold' type='text' placeholder='Title' 
+                        {...register('title', {
+                             maxLength: {value: 20, message: "Title must be less than 20 characters long."} 
+                            })}
+                            onChange={handleTitleChange}
+                        />
+
+                        {fields.map((field, index) => {
+                            return (
+                                <div key={field.id} className="flex flex-row gap-2">
+                                    <input className='focus:outline-none resize-none text-black placeholder:italic p-1' placeholder={noteState.note.length > 1 ? "item" : "Write something..."} 
+                                    {...register(`note.${index}`)} onKeyDown={(e) => handleKeyDown(e, index)}/>
+                                    {fields.length > 1 && <button onClick={() => remove(index)} className='text-[10px] text-gray-500'><i className="fa-solid fa-xmark"></i></button>}
+                                </div>
+                            )
+                        })}
+
                     </div>
                 </form>
                 <button onClick={deleteNote} className='absolute top-1 right-1 h-fit text-sm'><i className="fa-solid fa-trash"></i></button>   
